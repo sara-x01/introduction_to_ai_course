@@ -1,0 +1,11 @@
+# RoboMind - SE444 Course Project Dependencies
+
+# Core libraries
+pygame==2.5.2          # For grid world visualization
+numpy==1.24.3          # For numerical computations
+matplotlib==3.7.2      # For plotting results
+
+# Optional (for advanced features)
+# scipy==1.11.1        # For advanced probability
+# networkx==3.1        # For graph algorithms
+
