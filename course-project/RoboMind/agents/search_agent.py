@@ -1,4 +1,3 @@
-cat > agents/search_agent.py << 'EOF'
 """
 Search Agent - RoboMind Project
 SE444 - Artificial Intelligence Course Project
@@ -100,37 +99,3 @@ class SearchAgent:
         """Reset the agent's state."""
         self.path = None
         self.current_step = 0
-
-
-# Test the SearchAgent
-if __name__ == "__main__":
-    from environment import GridWorld
-    
-    print("Testing SearchAgent class...")
-    print("=" * 50)
-    
-    # Create environment
-    env = GridWorld(width=8, height=8)
-    env.add_random_obstacles(10)
-    
-    # Create agent
-    agent = SearchAgent(env)
-    
-    # Test each algorithm
-    algorithms = ['bfs', 'ucs', 'astar']
-    
-    for algo in algorithms:
-        print(f"\nTesting {algo.upper()}...")
-        try:
-            path, cost, expanded = agent.search(algo)
-            if path:
-                print(f"✓ Success! Path length: {len(path)}, Cost: {cost}, Expanded: {expanded}")
-                print(f"  Path: {path}")
-            else:
-                print("✗ No path found")
-        except Exception as e:
-            print(f"❌ Error: {e}")
-    
-    print("\n" + "=" * 50)
-    print("SearchAgent testing complete!")
-EOF
