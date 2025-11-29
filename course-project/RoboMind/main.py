@@ -2,20 +2,14 @@
 RoboMind - Main Entry Point
 SE444 - Artificial Intelligence Course Project
 
-Run different modes of the simulation:
-    python main.py --demo              # Run environment demo
-    python main.py --test-search       # Test search algorithms
-    python main.py --test-logic        # Test logic agent
-    python main.py --test-probability  # Test probabilistic agent
-    python main.py --test-hybrid       # Test hybrid agent
-    python main.py --experiment all    # Run all experiments
+Updated to include Phase 2 Logic Agent testing.
 """
 
 import argparse
 import sys
 from environment import GridWorld, demo as env_demo
 
-# Import agent modules (students will implement these)
+# Import agent modules
 try:
     from agents.search_agent import SearchAgent
 except ImportError:
@@ -114,15 +108,48 @@ def test_search():
 
 def test_logic():
     """Test logic-based agent."""
-    print_header("Testing Logic Agent")
+    print_header("Testing Logic Agent - Phase 2")
     
     if LogicAgent is None:
         print("❌ LogicAgent not implemented yet!")
         print("Please implement agents/logic_agent.py")
         return
     
-    print("Logic agent testing coming soon...")
-    print("This will test propositional logic reasoning.")
+    print("🧠 Testing Propositional Logic Reasoning Agent...\n")
+    
+    # Test on both maps
+    test_maps = ["maps/simple.txt", "maps/maze.txt"]
+    
+    for map_file in test_maps:
+        print(f"🗺️  Testing on {map_file}")
+        print("-" * 40)
+        
+        env = GridWorld()
+        env.load_map(map_file)
+        
+        print(f"Map: {env.width}x{env.height}")
+        print(f"Start: {env.start}, Goal: {env.goal}")
+        print(f"Obstacles: {(env.grid == 1).sum()}")
+        
+        # Create and run logic agent
+        agent = LogicAgent(env)
+        success, steps, history = agent.run_to_goal(200)
+        
+        print(f"\nResults:")
+        print(f"  Goal Reached: {'✅ YES' if success else '❌ NO'}")
+        print(f"  Steps Taken: {steps}")
+        print(f"  Final Position: {agent.position}")
+        print(f"  Cells Explored: {len(agent.visited_positions)}")
+        
+        # Show knowledge base info
+        kb_info = agent.get_knowledge_summary()
+        print(f"  KB Facts: {kb_info['knowledge_base_facts']}")
+        print(f"  KB Rules: {kb_info['knowledge_base_rules']}")
+        
+        if history and len(history) > 0:
+            print(f"  First 5 moves: {[h.split(' ')[1] for h in history[:5]]}")
+        
+        print()
 
 
 def test_probability():
@@ -167,10 +194,9 @@ def main():
 Examples:
   python main.py --demo              # Run environment demo
   python main.py --test-search       # Test search algorithms  
-  python main.py --test-logic        # Test logic agent
+  python main.py --test-logic        # Test logic agent (Phase 2)
   python main.py --test-probability  # Test probabilistic agent
   python main.py --test-hybrid       # Test hybrid agent
-  python main.py --experiment all    # Run all experiments
         """
     )
     
@@ -179,7 +205,7 @@ Examples:
     parser.add_argument('--test-search', action='store_true',
                        help='Test search algorithms')
     parser.add_argument('--test-logic', action='store_true',
-                       help='Test logic-based agent')
+                       help='Test logic-based agent (Phase 2)')
     parser.add_argument('--test-probability', action='store_true',
                        help='Test probabilistic agent')
     parser.add_argument('--test-hybrid', action='store_true',
@@ -216,4 +242,3 @@ Examples:
 
 if __name__ == "__main__":
     main()
-
