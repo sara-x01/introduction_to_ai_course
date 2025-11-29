@@ -2,7 +2,7 @@
 Knowledge Base - Logic Reasoning Module
 SE444 - Artificial Intelligence Course Project
 
-TODO: Implement propositional logic knowledge base with inference
+Implemented propositional logic knowledge base with inference
 Phase 2 (Week 3-4)
 """
 
@@ -93,7 +93,6 @@ class KnowledgeBase:
                 if all(premise in self.facts for premise in premises) and conclusion not in self.facts:
                     self.facts.add(conclusion)
                     changed = True
-                    # print(f"Inferred: {conclusion} from {premises}")
     
     def clear_facts(self):
         """Clear all facts but keep rules."""
