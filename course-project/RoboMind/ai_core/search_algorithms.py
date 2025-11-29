@@ -1,84 +1,127 @@
 """
-Search Agent - RoboMind Project
+Search Algorithms - RoboMind Project
 SE444 - Artificial Intelligence Course Project
 
-Agent that uses search algorithms to navigate the grid world.
+Implemented search algorithms:
+1. Breadth-First Search (BFS)
+2. Uniform Cost Search (UCS)
+3. A* Search
 """
 
 from typing import Tuple, List, Optional
-from ai_core.search_algorithms import bfs, ucs, astar
+from collections import deque
+import heapq
 
 
-class SearchAgent:
-    """
-    An AI agent that uses search algorithms to find paths in the grid world.
-    """
+def bfs(env, start: Tuple[int, int], goal: Tuple[int, int]) -> Tuple[Optional[List], float, int]:
+    """Breadth-First Search implementation."""
+    queue = deque([start])
+    visited = {start}
+    parent = {start: None}
+    expanded = 0
     
-    def __init__(self, env):
-        """
-        Initialize the search agent.
+    while queue:
+        current = queue.popleft()
+        expanded += 1
         
-        Args:
-            env: GridWorld environment
-        """
-        self.env = env
-        self.path = None
-        self.current_step = 0
+        if current == goal:
+            path = reconstruct_path(parent, start, goal)
+            cost = len(path) - 1
+            return path, cost, expanded
+        
+        for neighbor in env.get_neighbors(current):
+            if neighbor not in visited:
+                visited.add(neighbor)
+                parent[neighbor] = current
+                queue.append(neighbor)
     
-    def search(self, algorithm: str, heuristic: str = 'manhattan') -> Tuple[Optional[List], float, int]:
-        """
-        Perform search from start to goal using specified algorithm.
-        
-        Args:
-            algorithm: 'bfs', 'ucs', or 'astar'
-            heuristic: 'manhattan' or 'euclidean' (for A* only)
-        
-        Returns:
-            path: List of positions from start to goal
-            cost: Total path cost
-            expanded: Number of nodes expanded
-        """
-        start = self.env.start
-        goal = self.env.goal
-        
-        if algorithm == 'bfs':
-            path, cost, expanded = bfs(self.env, start, goal)
-        elif algorithm == 'ucs':
-            path, cost, expanded = ucs(self.env, start, goal)
-        elif algorithm == 'astar':
-            path, cost, expanded = astar(self.env, start, goal, heuristic)
-        else:
-            raise ValueError(f"Unknown algorithm: {algorithm}")
-        
-        self.path = path
-        self.current_step = 0
-        return path, cost, expanded
+    return None, float('inf'), expanded
+
+
+def ucs(env, start: Tuple[int, int], goal: Tuple[int, int]) -> Tuple[Optional[List], float, int]:
+    """Uniform Cost Search implementation."""
+    frontier = [(0, start)]
+    explored = set()
+    cost_so_far = {start: 0}
+    parent = {start: None}
+    expanded = 0
     
-    def get_next_move(self) -> Optional[Tuple[int, int]]:
-        """
-        Get the next position in the planned path.
+    while frontier:
+        current_cost, current = heapq.heappop(frontier)
         
-        Returns:
-            Next position (row, col) or None if no path or at goal
-        """
-        if self.path is None or self.current_step >= len(self.path):
-            return None
+        if current in explored:
+            continue
+            
+        explored.add(current)
+        expanded += 1
         
-        next_pos = self.path[self.current_step]
-        self.current_step += 1
-        return next_pos
+        if current == goal:
+            path = reconstruct_path(parent, start, goal)
+            return path, current_cost, expanded
+        
+        for neighbor in env.get_neighbors(current):
+            new_cost = current_cost + env.get_cost(current, neighbor)
+            
+            if neighbor not in explored:
+                if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
+                    cost_so_far[neighbor] = new_cost
+                    parent[neighbor] = current
+                    heapq.heappush(frontier, (new_cost, neighbor))
     
-    def has_path(self) -> bool:
-        """Check if the agent has a valid path."""
-        return self.path is not None and len(self.path) > 0
+    return None, float('inf'), expanded
+
+
+def astar(env, start: Tuple[int, int], goal: Tuple[int, int], 
+          heuristic='manhattan') -> Tuple[Optional[List], float, int]:
+    """A* Search implementation."""
+    if heuristic == 'manhattan':
+        h = lambda pos: env.manhattan_distance(pos, goal)
+    elif heuristic == 'euclidean':
+        h = lambda pos: env.euclidean_distance(pos, goal)
+    else:
+        raise ValueError(f"Unknown heuristic: {heuristic}")
     
-    def is_at_goal(self) -> bool:
-        """Check if the agent has reached the goal."""
-        if not self.has_path():
-            return False
-        return self.current_step >= len(self.path)
+    g_score = {start: 0}
+    f_score = {start: h(start)}
+    frontier = [(f_score[start], start)]
+    explored = set()
+    parent = {start: None}
+    expanded = 0
     
-    def reset(self):
-        """Reset the agent's state."""
-        self.path = None
-        self.current_step = 0
+    while frontier:
+        current_f, current = heapq.heappop(frontier)
+        
+        if current in explored:
+            continue
+            
+        explored.add(current)
+        expanded += 1
+        
+        if current == goal:
+            path = reconstruct_path(parent, start, goal)
+            return path, g_score[current], expanded
+        
+        for neighbor in env.get_neighbors(current):
+            if neighbor in explored:
+                continue
+            
+            tentative_g = g_score[current] + env.get_cost(current, neighbor)
+            
+            if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                g_score[neighbor] = tentative_g
+                f_score[neighbor] = tentative_g + h(neighbor)
+                parent[neighbor] = current
+                heapq.heappush(frontier, (f_score[neighbor], neighbor))
+    
+    return None, float('inf'), expanded
+
+
+def reconstruct_path(parent: dict, start: Tuple[int, int], goal: Tuple[int, int]) -> List[Tuple[int, int]]:
+    """Reconstruct path from parent pointers."""
+    path = []
+    current = goal
+    while current is not None:
+        path.append(current)
+        current = parent.get(current)
+    path.reverse()
+    return path
