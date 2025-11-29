@@ -207,32 +207,16 @@ class LogicAgent:
         steps = 0
         action_history = []
         
-        print(f"🤖 Logic Agent starting at {self.position}")
-        print(f"   Goal: {self.env.goal}, Max steps: {max_steps}")
-        
         while steps < max_steps and self.position != self.env.goal:
             success, description = self.act()
             action_history.append(description)
             
-            # Progress reporting
-            if steps % 20 == 0:
-                dist = abs(self.position[0] - self.env.goal[0]) + abs(self.position[1] - self.env.goal[1])
-                print(f"   Step {steps}: {self.position} (distance: {dist})")
-            
             if not success:
-                print(f"   ⚠️  Stuck at step {steps}: {description}")
                 break
             
             steps += 1
         
         success = self.position == self.env.goal
-        
-        if success:
-            print(f"   ✅ Goal reached in {steps} steps!")
-        else:
-            print(f"   ❌ Failed to reach goal after {steps} steps")
-            print(f"   Final position: {self.position}")
-        
         return success, steps, action_history
     
     def get_knowledge_summary(self) -> dict:
@@ -245,55 +229,3 @@ class LogicAgent:
             "knowledge_base_rules": len(self.kb.rules),
             "at_goal": self.position == self.env.goal
         }
-
-
-# ============================================================================
-# Testing and Demonstration
-# ============================================================================
-
-def demonstrate_logic_agent():
-    """Demonstrate the logic agent on both test maps."""
-    print("=" * 70)
-    print("🤖 ROBOMIND - LOGIC AGENT DEMONSTRATION (PHASE 2)")
-    print("=" * 70)
-    
-    test_maps = [
-        ("Simple Map", "maps/simple.txt"),
-        ("Maze Map", "maps/maze.txt")
-    ]
-    
-    for map_name, map_file in test_maps:
-        print(f"\n🗺️  {map_name.upper()}")
-        print("-" * 50)
-        
-        # Load environment
-        env = GridWorld()
-        env.load_map(map_file)
-        
-        print(f"   Map: {env.width}x{env.height}")
-        print(f"   Start: {env.start}, Goal: {env.goal}")
-        print(f"   Obstacles: {(env.grid == 1).sum()}")
-        
-        # Create and run agent
-        agent = LogicAgent(env)
-        success, steps, history = agent.run_to_goal(300)
-        
-        # Display results
-        print(f"\n   📊 RESULTS:")
-        print(f"      Success: {'✅ YES' if success else '❌ NO'}")
-        print(f"      Steps: {steps}")
-        print(f"      Efficiency: {steps}/{(env.width + env.height) * 2} (actual/optimal ratio)")
-        print(f"      Exploration: {len(agent.visited_positions)} cells visited")
-        
-        knowledge_summary = agent.get_knowledge_summary()
-        print(f"      KB Facts: {knowledge_summary['knowledge_base_facts']}")
-        print(f"      KB Rules: {knowledge_summary['knowledge_base_rules']}")
-        
-        if history and len(history) > 0:
-            print(f"      First 5 moves: {[h.split(' ')[1] for h in history[:5]]}")
-        
-        print("-" * 50)
-
-
-if __name__ == "__main__":
-    demonstrate_logic_agent()
