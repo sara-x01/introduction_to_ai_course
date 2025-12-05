@@ -46,8 +46,11 @@ def bayes_update(prior: float, likelihood: float, evidence: float) -> float:
     # Formula: posterior = (likelihood * prior) / evidence
     #
     # Watch out for division by zero!
-    
-    raise NotImplementedError("Bayes' rule not implemented yet!")
+    # Watch out for division by zero!
+    if evidence == 0:
+        return prior #since we don't have evidence, we can't implement the bayes rule, so we return prior (the belief before seeing the evidence), bc returning 0 or 1 does not make sense, it would mean that we are sure about the hypothesis being true/false
+    posterior = (likelihood * prior) / evidence
+    return posterior
 
 
 def compute_evidence(prior: float, likelihood_h: float, likelihood_not_h: float) -> float:
