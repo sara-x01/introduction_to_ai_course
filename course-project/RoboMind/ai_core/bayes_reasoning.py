@@ -41,14 +41,10 @@ def bayes_update(prior: float, likelihood: float, evidence: float) -> float:
         >>> posterior = bayes_update(P_H, P_E_given_H, P_E)
         >>> print(f"Updated belief: {posterior:.2f}")  # ~0.79 (79%)
     """
-    # TODO: Implement Bayes' rule
-    #
-    # Formula: posterior = (likelihood * prior) / evidence
-    #
-    # Watch out for division by zero!
-    
-    raise NotImplementedError("Bayes' rule not implemented yet!")
-
+    if evidence == 0:
+        return prior #bc prior is the belief before seeing the evidence, we can't say return 1/0 here bc it means that the hypothesis is T/F and we don't know that without evidence 
+    posterior = (likelihood * prior) / evidence
+    return posterior
 
 def compute_evidence(prior: float, likelihood_h: float, likelihood_not_h: float) -> float:
     """
