@@ -130,7 +130,7 @@ def sensor_model(actual_state: bool, sensor_accuracy: float = 0.9) -> Tuple[floa
 # ============================================================================
 # Testing Code
 # ============================================================================
-
+"""
 if __name__ == "__main__":
     print("=" * 60)
     print("  Testing Bayesian Reasoning")
@@ -188,4 +188,14 @@ if __name__ == "__main__":
     
     print("\n💡 Tip: Start with the basic bayes_update() function,")
     print("   then build up to belief maps!")
+"""
+# test the bayes_update() only 
+if __name__ == "__main__":
+    print("Testing bayes_update() only...\n")
 
+    prior = 0.3
+    likelihood = 0.9
+    evidence = 0.3*0.9 + 0.7*0.1   # = 0.34
+
+    result = bayes_update(prior, likelihood, evidence)
+    print("Posterior:", result)
